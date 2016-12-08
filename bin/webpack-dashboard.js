@@ -5,6 +5,8 @@ var commander = require("commander");
 var spawn = require("cross-spawn");
 var Dashboard = require("../dashboard/index.js");
 var SocketIO = require("socket.io");
+var parseArgs = require('minimist');
+var fs = require('fs');
 
 var program = new commander.Command("webpack-dashboard");
 
@@ -24,6 +26,8 @@ if (!program.args.length) {
 
 var command = program.args[0];
 var args = program.args.slice(1);
+const webpackArgs = parseArgs(args);
+const proxyInfo = createProxyInfo(webpackArgs);
 var env = process.env;
 
 env.FORCE_COLOR = true;
@@ -38,6 +42,17 @@ var dashboard = new Dashboard({
   color: program.color || "green",
   minimal: program.minimal || false,
   title: program.title || null
+});
+
+dashboard.setData([{
+  type: "proxy",
+  value: proxyInfo
+}]);
+
+processLintOutput();
+
+fs.watchFile('./eslint-out.txt', () => {
+  processLintOutput();
 });
 
 var port = program.port || 9838;
@@ -69,3 +84,22 @@ child.stderr.on("data", function (data) {
 process.on("exit", function () {
   process.kill(process.platform === "win32" ? child.pid : -child.pid);
 });
+
+
+function processLintOutput() {
+  fs.readFile('./eslint-out.txt', 'utf8', (err, data) => {
+    dashboard.setData([{
+      type: "lint",
+      value: data
+    }]);
+  });
+}
+
+function createProxyInfo(args) {
+  var url = args.baseUrl || "https://cbl-local:8181";
+  if(!args.username) {
+    var apiKey = args.key || 'liveReload'
+    return `Proxied URL: ${url}\nAPI Key: ${apiKey}`;
+  }
+  return `Proxied URL: ${url}\nUsername: ${args.username}\nPassword: ${args.password}`;
+}

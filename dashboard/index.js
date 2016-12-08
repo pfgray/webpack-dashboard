@@ -24,6 +24,8 @@ function Dashboard(options) {
 
   this.layoutLog.call(this);
   this.layoutStatus.call(this);
+  this.layoutProxy.call(this);
+  this.layoutLint.call(this);
   !this.minimal && this.layoutModules.call(this);
   !this.minimal && this.layoutAssets.call(this);
 
@@ -51,6 +53,19 @@ Dashboard.prototype.setData = function(dataArr) {
       }
       case "operations": {
         self.operations.setContent(data.value);
+        break;
+      }
+      case "proxy": {
+        self.proxy.setText(data.value);
+        break;
+      }
+      case "lint": {
+        if(data.value) {
+          var content = "{red-fg}{bold}" + data.value + "{/}";
+          self.lint.setContent(content);
+        } else {
+          self.lint.setText("No errors");
+        }
         break;
       }
       case "status": {
@@ -184,15 +199,97 @@ Dashboard.prototype.layoutModules = function() {
   this.screen.append(this.modules);
 };
 
+Dashboard.prototype.layoutProxy = function() {
+  this.proxyWrapper = blessed.box({
+    label: "Proxy",
+    tags: true,
+    padding: 1,
+    width: "50%",
+    height: "15%",
+    left: "50%",
+    top: "42%",
+    border: {
+      type: "line"
+    },
+    style: {
+      fg: -1,
+      border: {
+        fg: this.color,
+      },
+    }
+  });
+
+  this.proxy = blessed.box({
+    parent: this.proxyWrapper,
+    tags: true,
+    pad: 1,
+    height: "100%-3",
+    width: "100%-5",
+    valign: "left",
+    style: {
+      fg: -1,
+      border: {
+        fg: this.color,
+      },
+    }
+  });
+
+  this.screen.append(this.proxyWrapper);
+}
+
+Dashboard.prototype.layoutLint = function() {
+  this.lintWrapper  = blessed.box({
+    label: "Lint",
+    tags: true,
+    padding: 1,
+    width: "50%",
+    height: "25%",
+    left: "50%",
+    top: "56%",
+    border: {
+      type: "line"
+    },
+    style: {
+      fg: -1,
+      border: {
+        fg: this.color
+      }
+    }
+  });
+
+  this.lint = blessed.box({
+    parent: this.lintWrapper,
+    tags: true,
+    pad: 1,
+    height: "100%-3",
+    width: "100%-5",
+    valign: "left",
+    scrollable: true,
+    alwaysScroll: true,
+    scrollbar: {
+      ch: " ",
+      inverse: true
+    },
+    style: {
+      fg: -1,
+      border: {
+        fg: this.color,
+      },
+    }
+  })
+
+  this.screen.append(this.lintWrapper);
+}
+
 Dashboard.prototype.layoutAssets = function() {
   this.assets = blessed.box({
     label: "Assets",
     tags: true,
     padding: 1,
     width: "50%",
-    height: "58%",
+    height: "19%",
     left: "50%",
-    top: "42%",
+    top: "81%",
     border: {
       type: "line",
     },

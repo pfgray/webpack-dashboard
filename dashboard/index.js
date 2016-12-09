@@ -26,8 +26,9 @@ function Dashboard(options) {
   this.layoutStatus.call(this);
   this.layoutProxy.call(this);
   this.layoutLint.call(this);
+  this.layoutKarma.call(this);
   !this.minimal && this.layoutModules.call(this);
-  !this.minimal && this.layoutAssets.call(this);
+  //!this.minimal && this.layoutAssets.call(this);
 
   this.screen.key(["escape", "q", "C-c"], function() {
     process.exit(0);
@@ -68,6 +69,12 @@ Dashboard.prototype.setData = function(dataArr) {
         }
         break;
       }
+      case "karma": {
+        if(data.value) {
+          self.karma.setContent(data.value);
+        }
+        break;
+      }
       case "status": {
         var content;
 
@@ -101,7 +108,7 @@ Dashboard.prototype.setData = function(dataArr) {
         }
         self.logText.log(formatOutput(stats));
         !self.minimal && self.moduleTable.setData(formatModules(stats));
-        !self.minimal && self.assetTable.setData(formatAssets(stats));
+        //!self.minimal && self.assetTable.setData(formatAssets(stats));
         break;
       }
       case "log": {
@@ -280,6 +287,51 @@ Dashboard.prototype.layoutLint = function() {
 
   this.screen.append(this.lintWrapper);
 }
+
+
+Dashboard.prototype.layoutKarma = function() {
+  this.karmaWrapper = blessed.box({
+    label: "Karma",
+    tags: true,
+    padding: 1,
+    width: "50%",
+    height: "19%",
+    left: "50%",
+    top: "81%",
+    border: {
+      type: "line",
+    },
+    style: {
+      fg: -1,
+      border: {
+        fg: this.color,
+      },
+    },
+  });
+
+  this.karma = blessed.box({
+    parent: this.karmaWrapper,
+    tags: true,
+    pad: 1,
+    height: "100%-3",
+    width: "100%-5",
+    valign: "left",
+    scrollable: true,
+    alwaysScroll: true,
+    scrollbar: {
+      ch: " ",
+      inverse: true
+    },
+    style: {
+      fg: -1,
+      border: {
+        fg: this.color,
+      },
+    }
+  });
+
+  this.screen.append(this.karmaWrapper);
+};
 
 Dashboard.prototype.layoutAssets = function() {
   this.assets = blessed.box({

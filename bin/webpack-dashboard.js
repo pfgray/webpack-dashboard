@@ -16,6 +16,7 @@ program.option("-c, --color [color]", "Dashboard color");
 program.option("-m, --minimal", "Minimal mode");
 program.option("-t, --title [title]", "Terminal window title");
 program.option("-p, --port [port]", "Socket listener port");
+program.option("-k, --karma [file]", "Karma configuration file");
 program.usage("[options] -- [script] [arguments]");
 program.parse(process.argv);
 

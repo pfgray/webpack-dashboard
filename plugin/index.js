@@ -11,7 +11,7 @@ function DashboardPlugin(options) {
   if (typeof options === "function") {
     this.handler = options;
   } else {
-    options = options || {};
+    this.options = options || {};
     this.port = options.port || 9838;
     this.handler = options.handler || null;
   }
@@ -27,6 +27,7 @@ function getTimeMessage(timer) {
 
 DashboardPlugin.prototype.apply = function(compiler) {
   var handler = this.handler;
+  const options = this.options;
   var timer;
 
   if (!handler) {
@@ -76,6 +77,7 @@ DashboardPlugin.prototype.apply = function(compiler) {
   });
 
   compiler.plugin("done", function(stats) {
+    var self = this;
     handler.call(null, [{
       type: "status",
       value: "Success"
@@ -93,6 +95,12 @@ DashboardPlugin.prototype.apply = function(compiler) {
         data: stats.toJson()
       }
     }]);
+
+    options.plugins.forEach(plugin => {
+      if(plugin.onBundleFinish){
+        plugin.onBundleFinish(handler.bind(self));
+      }
+    });
   });
 
   compiler.plugin("failed", function() {
